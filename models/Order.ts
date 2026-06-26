@@ -15,6 +15,10 @@ export interface IOrder extends Document {
   address: string;
   items: IOrderItem[];
   totalPrice: number;
+  shippingFee: number;
+  discountAmount: number;
+  couponCode: string;
+  grandTotal: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   createdAt: Date;
 }
@@ -34,6 +38,10 @@ const OrderSchema = new Schema<IOrder>({
   address: { type: String, required: true },
   items: { type: [OrderItemSchema], required: true },
   totalPrice: { type: Number, required: true },
+  shippingFee: { type: Number, default: 0 },
+  discountAmount: { type: Number, default: 0 },
+  couponCode: { type: String, default: '' },
+  grandTotal: { type: Number, required: true },
   status: { type: String, enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'pending' },
   createdAt: { type: Date, default: Date.now }
 });

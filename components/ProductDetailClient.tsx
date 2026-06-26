@@ -72,6 +72,18 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     router.push('/checkout');
   };
 
+  const handleWhatsAppOrder = () => {
+    if (!selectedSize) {
+      setErrorMsg('يرجى اختيار المقاس أولاً');
+      return;
+    }
+    setErrorMsg(null);
+
+    const message = `مرحباً Xero، أود طلب طقم بيجامة "${product.name}" بمقاس (${selectedSize}) وبكمية (${quantity}). السعر: ${product.price * quantity} ج.م.`;
+    const whatsappUrl = `https://wa.me/201000000000?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const incrementQty = () => setQuantity((prev) => prev + 1);
   const decrementQty = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
@@ -239,6 +251,22 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               className="flex-grow inline-flex h-13 items-center justify-center rounded-xl border border-stone-300 bg-white text-sm font-bold text-stone-700 hover:bg-stone-50 transition-all duration-300 active:scale-95 disabled:bg-stone-100 disabled:text-stone-300 disabled:border-stone-200 disabled:cursor-not-allowed"
             >
               أضف إلى السلة
+            </button>
+          </div>
+
+          {/* WhatsApp Order Button */}
+          <div className="pt-2">
+            <button
+              key="whatsapp-btn"
+              type="button"
+              disabled={!product.inStock}
+              onClick={handleWhatsAppOrder}
+              className="w-full inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-emerald-500 bg-emerald-50 text-emerald-800 hover:bg-emerald-600 hover:text-white transition-all duration-300 active:scale-95 font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.324 5.328 0 11.859 0c3.161.001 6.132 1.233 8.368 3.468 2.237 2.236 3.467 5.207 3.466 8.369C23.69 18.367 18.365 23.69 11.83 23.69c-2.001-.001-3.974-.51-5.74-1.488L0 24zm6.49-3.988c1.69.999 3.511 1.527 5.372 1.528 5.751 0 10.43-4.677 10.433-10.43.001-2.787-1.082-5.405-3.053-7.377C17.328 1.761 14.712.678 11.926.678c-5.753 0-10.43 4.677-10.433 10.43-.001 2.008.528 3.969 1.532 5.679L1.936 21.65l5.033-1.321h-.422zM17.472 14.3c-.31-.156-1.84-.908-2.12-.1-1.1-.384-.298-.82-.41-.989-.117-.168-.023-.31.047-.47.07-.155.61-.75.92-1.117.31-.367.62-.647.78-.979.155-.333.08-.624-.047-.78-.125-.156-1.1-2.656-1.5-3.64-.4-.988-.813-.85-1.1-.864-.234-.014-.5-.015-.76-.015-.26 0-.689.1-.1.52.41 1.1 1.34 2.87 2.87 3.73.533.3 1.053.486 1.417.6.533.17 1.017.147 1.4.09.43-.064 1.336-.547 1.524-1.078.188-.53.188-.988.13-1.08-.058-.09-.234-.146-.54-.3z"/>
+              </svg>
+              طلب مباشر عبر الواتساب
             </button>
           </div>
 

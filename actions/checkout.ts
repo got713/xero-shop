@@ -3,6 +3,8 @@
 import { connectDB } from '@/lib/db';
 import { Order } from '@/models/Order';
 import { Product } from '@/models/Product';
+import { Coupon } from '@/models/Coupon';
+import { SHIPPING_FEES, getShippingFee } from '@/lib/shipping';
 
 export type CheckoutResponse = {
   success: boolean;
@@ -16,11 +18,12 @@ export async function submitOrder(formData: {
   governorate: string;
   address: string;
   items: { productId: string; size: 'S' | 'M' | 'L' | 'XL'; quantity: number }[];
+  couponCode?: string;
 }): Promise<CheckoutResponse> {
   try {
-    // Validations
+    // Basic fields validation
     if (!formData.customerName || !formData.phone || !formData.governorate || !formData.address) {
-      return { success: false, message: 'يرجى إدخال جميع البيانات المطلوبة لعنوان الشحن.' };
+      return { success: false, message: 'يرجى ملء جميع الحقول المطلوبة لعنوان الشحن.' };
     }
 
     if (formData.customerName.trim().length < 3) {
@@ -40,11 +43,11 @@ export async function submitOrder(formData: {
     const mappedItems = [];
     let calculatedTotalPrice = 0;
 
-    // Recalculate price from DB and check stock
+    // Fetch and check products and sizes
     for (const item of formData.items) {
       const product = await Product.findById(item.productId);
       if (!product) {
-        return { success: false, message: `أحد المنتجات المطلوبة غير متوفر في المتجر حالياً.` };
+        return { success: false, message: 'أحد المنتجات المطلوبة غير متوفر في المتجر حالياً.' };
       }
       
       if (!product.inStock) {
@@ -63,7 +66,31 @@ export async function submitOrder(formData: {
       });
     }
 
-    // Save order details to MongoDB
+    // Calculate Shipping Fee
+    const shippingFee = getShippingFee(formData.governorate);
+
+    // Calculate Coupon Discount
+    let discountAmount = 0;
+    let appliedCode = '';
+
+    if (formData.couponCode && formData.couponCode.trim() !== '') {
+      const cleanCode = formData.couponCode.trim().toUpperCase();
+      const coupon = await Coupon.findOne({ code: cleanCode, isActive: true });
+      
+      if (coupon) {
+        appliedCode = coupon.code;
+        if (coupon.discountType === 'percentage') {
+          discountAmount = Math.round((calculatedTotalPrice * coupon.discountValue) / 100);
+        } else {
+          discountAmount = Math.min(coupon.discountValue, calculatedTotalPrice);
+        }
+      }
+    }
+
+    // Calculate Grand Total
+    const grandTotal = calculatedTotalPrice + shippingFee - discountAmount;
+
+    // Create Order Document in MongoDB
     const newOrder = await Order.create({
       customerName: formData.customerName.trim(),
       phone: formData.phone.trim(),
@@ -71,6 +98,10 @@ export async function submitOrder(formData: {
       address: formData.address.trim(),
       items: mappedItems,
       totalPrice: calculatedTotalPrice,
+      shippingFee,
+      discountAmount,
+      couponCode: appliedCode,
+      grandTotal,
       status: 'pending',
     });
 

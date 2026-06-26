@@ -1,5 +1,6 @@
 import { connectDB } from './db';
 import { Product } from '@/models/Product';
+import { Coupon } from '@/models/Coupon';
 
 const seedProducts = [
   {
@@ -44,6 +45,19 @@ export async function seedDatabase() {
       console.log('Seeding database with default pajama products...');
       await Product.insertMany(seedProducts);
       console.log('Seeding completed successfully!');
+    }
+    
+    // Seed default coupon
+    const couponCount = await Coupon.countDocuments();
+    if (couponCount === 0) {
+      console.log('Seeding database with default promo coupon XERO10...');
+      await Coupon.create({
+        code: 'XERO10',
+        discountType: 'percentage',
+        discountValue: 10,
+        isActive: true
+      });
+      console.log('Seeding coupon completed successfully!');
     }
   } catch (error) {
     console.error('Failed to seed database:', error);
