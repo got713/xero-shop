@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fdfbf7; /* Warm, premium soft cream */
+  --foreground: #1e1b18; /* Dark charcoal with warm undertones */
+  --primary-gold: #c5a880; /* Elegant soft gold for accents */
+  --primary-accent: #8b5a2b; /* Soft warm terracotta/brown */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary-gold: var(--primary-gold);
+  --color-primary-accent: var(--primary-accent);
+  --font-sans: var(--font-cairo), system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-cairo), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom transitions and styling for smoother visual experience */
+.transition-all-custom {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
