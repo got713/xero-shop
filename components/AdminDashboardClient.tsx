@@ -98,7 +98,12 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
   useEffect(() => {
     const authSession = localStorage.getItem('xero_admin_auth');
     if (authSession) {
-      setIsAuthenticated(true);
+      if (authSession === 'true') {
+        localStorage.removeItem('xero_admin_auth');
+        setIsAuthenticated(false);
+      } else {
+        setIsAuthenticated(true);
+      }
     }
   }, []);
 
