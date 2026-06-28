@@ -49,8 +49,13 @@ ${itemsDetail}
 ⚙️ *حالة الطلب: معلق (قيد المراجعة)*
   `.trim();
 
+  if (!BOT_TOKEN || !CHAT_ID) {
+    console.error("❌ خطأ تليجرام: لم يتم العثور على TELEGRAM_BOT_TOKEN أو TELEGRAM_CHAT_ID في ملف البيئة .env.local");
+    return;
+  }
+
   try {
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -59,9 +64,16 @@ ${itemsDetail}
         parse_mode: "Markdown",
       }),
     });
-    console.log("Xero automation alert sent successfully!");
-  } catch (error) {
-    console.error("Failed to send Xero alert:", error);
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`❌ فشل إرسال تنبيه تليجرام. كود الحالة: ${response.status}. التفاصيل: ${errText}`);
+    } else {
+      console.log("✅ تم إرسال تنبيه تليجرام بنجاح!");
+    }
+  } catch (error: any) {
+    console.error("❌ فشل إرسال تنبيه تليجرام بسبب خطأ اتصال الشبكة:", error.message || error);
+    console.log("👉 ملاحظة: إذا كنت في مصر، فقد تكون خدمات تليجرام محجوبة على شبكتك المحلية (ISP Block) وتتطلب VPN للتشغيل محلياً، لكنها ستعمل بشكل طبيعي فور النشر على Vercel.");
   }
 }
 
