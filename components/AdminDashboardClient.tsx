@@ -15,6 +15,7 @@ interface OrderItem {
   productId: string;
   name: string;
   size: 'S' | 'M' | 'L' | 'XL';
+  color?: string;
   quantity: number;
   price: number;
 }
@@ -43,6 +44,7 @@ interface ProductType {
   images: string[];
   sizes: ('S' | 'M' | 'L' | 'XL')[];
   inStock: boolean;
+  colorVariations?: { colorName: string; colorHex?: string; images: string[] }[];
   createdAt: string;
 }
 
@@ -85,6 +87,7 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
   const [pImages, setPImages] = useState('');
   const [pSizes, setPSizes] = useState<('S' | 'M' | 'L' | 'XL')[]>(['S', 'M', 'L', 'XL']);
   const [pInStock, setPInStock] = useState(true);
+  const [pColorVariations, setPColorVariations] = useState('');
 
   // Coupon Form Fields
   const [cCode, setCCode] = useState('');
@@ -156,6 +159,7 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
     setPImages('');
     setPSizes(['S', 'M', 'L', 'XL']);
     setPInStock(true);
+    setPColorVariations('');
     setIsProductModalOpen(true);
   };
 
@@ -168,6 +172,11 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
     setPImages(product.images.join(', '));
     setPSizes(product.sizes);
     setPInStock(product.inStock);
+    if (product.colorVariations && product.colorVariations.length > 0) {
+      setPColorVariations(product.colorVariations.map((v: any) => `${v.colorName}:${v.colorHex || ''}`).join(', '));
+    } else {
+      setPColorVariations('');
+    }
     setIsProductModalOpen(true);
   };
 
@@ -180,13 +189,28 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
     }
 
     const imagesArray = pImages.split(',').map(img => img.trim()).filter(Boolean);
+    
+    // Parse color variations
+    const colorVariationsArray = pColorVariations ? pColorVariations.split(',').map(v => {
+      const parts = v.trim().split(':');
+      if (parts.length >= 1 && parts[0].trim()) {
+        return {
+          colorName: parts[0].trim(),
+          colorHex: parts[1] ? parts[1].trim() : '#cccccc',
+          images: imagesArray
+        };
+      }
+      return null;
+    }).filter(Boolean) as any[] : [];
+
     const productData = {
       name: pName,
       price: Number(pPrice),
       description: pDescription,
       images: imagesArray,
       sizes: pSizes,
-      inStock: pInStock
+      inStock: pInStock,
+      colorVariations: colorVariationsArray
     };
 
     startTransition(async () => {
@@ -371,7 +395,9 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
             <tbody className="divide-y divide-stone-200 text-xs">
               {printOrder.items.map((item, idx) => (
                 <tr key={idx}>
-                  <td className="py-3 px-4 font-bold">{item.name}</td>
+                  <td className="py-3 px-4 font-bold">
+                    {item.name} {item.color && <span className="text-stone-500 font-normal">({item.color})</span>}
+                  </td>
                   <td className="py-3 px-4 text-center">{item.size}</td>
                   <td className="py-3 px-4 text-center">{item.quantity}</td>
                   <td className="py-3 px-4 text-left font-bold">{item.price.toLocaleString('ar-EG')} ج.م</td>
@@ -527,7 +553,9 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
                         <div className="space-y-1 max-w-xs">
                           {order.items.map((item, idx) => (
                             <div key={idx} className="flex justify-between gap-4 py-0.5 border-b border-stone-100 last:border-0">
-                              <span className="text-stone-800 font-semibold truncate max-w-[150px]">{item.name}</span>
+                              <span className="text-stone-800 font-semibold truncate max-w-[150px]">
+                                {item.name} {item.color && <span className="text-stone-400 font-medium">({item.color})</span>}
+                              </span>
                               <span className="text-stone-500 text-[10px] shrink-0 font-bold">
                                 مقاس {item.size} × {item.quantity}
                               </span>
@@ -851,6 +879,18 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
                   className="w-full h-10 rounded-lg border border-stone-300 px-3 text-xs focus:outline-none focus:border-primary-accent"
                 />
                 <p className="text-[10px] text-stone-400">يمكنك استخدام الصور المتاحة: `/images/silk-cream.png` أو `/images/linen-gray.png` أو `/images/cotton-rose.png` أو `/images/waffle-beige.png` لتجربة سريعة.</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-stone-700">خيارات الألوان (الاسم:الرمز، مفصولة بفاصلة) [اختياري]</label>
+                <input
+                  type="text"
+                  value={pColorVariations}
+                  onChange={(e) => setPColorVariations(e.target.value)}
+                  placeholder="مثال: كريمي:#f5ebe0, ذهبي فاخر:#d4af37"
+                  className="w-full h-10 rounded-lg border border-stone-300 px-3 text-xs focus:outline-none focus:border-primary-accent"
+                />
+                <p className="text-[10px] text-stone-400">مثال: `كريمي:#f5ebe0, ذهبي فاخر:#d4af37`. اتركها فارغة إذا لم تكن هناك ألوان.</p>
               </div>
 
               {/* Sizes checkboxes */}

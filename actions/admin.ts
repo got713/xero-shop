@@ -46,6 +46,7 @@ export async function createProduct(password: string, data: {
   images: string[];
   sizes: ('S' | 'M' | 'L' | 'XL')[];
   inStock: boolean;
+  colorVariations?: { colorName: string; colorHex?: string; images: string[] }[];
 }) {
   if (!await verifyAdminPassword(password)) {
     return { success: false, message: 'غير مصرح: رمز الدخول غير صحيح.' };
@@ -78,6 +79,7 @@ export async function updateProduct(
     images?: string[];
     sizes?: ('S' | 'M' | 'L' | 'XL')[];
     inStock?: boolean;
+    colorVariations?: { colorName: string; colorHex?: string; images: string[] }[];
   }
 ) {
   if (!await verifyAdminPassword(password)) {

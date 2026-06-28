@@ -21,15 +21,20 @@ async function sendTelegramAlert(orderData: {
   phone: string;
   address: string;
   governorate: string;
-  items: { name: string; size: string; quantity: number }[];
+  items: { name: string; size: string; color?: string; quantity: number }[];
   shippingCost: number;
   totalPrice: number;
 }) {
   let itemsDetail = '';
   if (orderData.items.length === 1) {
-    itemsDetail = `• المنتج: ${orderData.items[0].name}\n• المقاس: ${orderData.items[0].size}\n• الكمية: ${orderData.items[0].quantity}`;
+    const item = orderData.items[0];
+    const colorPart = item.color ? ` (${item.color})` : '';
+    itemsDetail = `• المنتج: ${item.name}${colorPart}\n• المقاس: ${item.size}\n• الكمية: ${item.quantity}`;
   } else {
-    itemsDetail = orderData.items.map(item => `• المنتج: ${item.name} | المقاس: ${item.size} | الكمية: ${item.quantity}`).join('\n');
+    itemsDetail = orderData.items.map(item => {
+      const colorPart = item.color ? ` (${item.color})` : '';
+      return `• المنتج: ${item.name}${colorPart} | المقاس: ${item.size} | الكمية: ${item.quantity}`;
+    }).join('\n');
   }
 
   const message = `
@@ -87,7 +92,7 @@ export async function submitOrder(formData: {
   phone: string;
   governorate: string;
   address: string;
-  items: { productId: string; size: 'S' | 'M' | 'L' | 'XL'; quantity: number }[];
+  items: { productId: string; size: 'S' | 'M' | 'L' | 'XL'; color?: string; quantity: number }[];
   couponCode?: string;
 }): Promise<CheckoutResponse> {
   try {
@@ -131,6 +136,7 @@ export async function submitOrder(formData: {
         productId: product._id,
         name: product.name,
         size: item.size,
+        color: item.color,
         quantity: item.quantity,
         price: product.price,
       });

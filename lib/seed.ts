@@ -10,6 +10,14 @@ const seedProducts = [
     images: ['/images/silk-cream.png'],
     sizes: ['S', 'M', 'L', 'XL'],
     inStock: true,
+    colorVariations: [
+      { colorName: 'كريمي', colorHex: '#f5ebe0', images: ['/images/silk-cream.png'] },
+      { colorName: 'ذهبي فاخر', colorHex: '#d4af37', images: ['/images/silk-cream.png'] }
+    ],
+    reviews: [
+      { reviewerName: 'مي أحمد', rating: 5, comment: 'رائعة جداً وخامتها ناعمة ومريحة في النوم، أنصح بها بشدة!', createdAt: new Date() },
+      { reviewerName: 'سارة محمد', rating: 5, comment: 'البيجامة أنيقة جداً وتغليفها شيك والتوصيل سريع.', createdAt: new Date() }
+    ]
   },
   {
     name: 'طقم ملابس النوم الكتان الصيفي (Linen Loungewear)',
@@ -18,6 +26,13 @@ const seedProducts = [
     images: ['/images/linen-gray.png'],
     sizes: ['S', 'M', 'L', 'XL'],
     inStock: true,
+    colorVariations: [
+      { colorName: 'رمادي داكن', colorHex: '#4a4a4a', images: ['/images/linen-gray.png'] },
+      { colorName: 'أوف وايت', colorHex: '#faf9f6', images: ['/images/linen-gray.png'] }
+    ],
+    reviews: [
+      { reviewerName: 'أحمد علي', rating: 4, comment: 'المقاس مضبوط بالظبط وخامة الكتان ممتازة في الصيف.', createdAt: new Date() }
+    ]
   },
   {
     name: 'بيجامة قطن كلاسيك وردي (Cotton Classic)',
@@ -26,6 +41,13 @@ const seedProducts = [
     images: ['/images/cotton-rose.png'],
     sizes: ['S', 'M', 'L', 'XL'],
     inStock: true,
+    colorVariations: [
+      { colorName: 'وردي ناعم', colorHex: '#ffb3c1', images: ['/images/cotton-rose.png'] },
+      { colorName: 'أبيض قطني', colorHex: '#ffffff', images: ['/images/cotton-rose.png'] }
+    ],
+    reviews: [
+      { reviewerName: 'نورا حسن', rating: 5, comment: 'القطن ناعم جداً ومريحة للارتداء اليومي.', createdAt: new Date() }
+    ]
   },
   {
     name: 'طقم شتوي مخملي دافئ (Cozy Waffle Fleece)',
@@ -34,6 +56,13 @@ const seedProducts = [
     images: ['/images/waffle-beige.png'],
     sizes: ['S', 'M', 'L', 'XL'],
     inStock: true,
+    colorVariations: [
+      { colorName: 'بيج دافئ', colorHex: '#d8c3a5', images: ['/images/waffle-beige.png'] },
+      { colorName: 'بني شوكولاتة', colorHex: '#5c4033', images: ['/images/waffle-beige.png'] }
+    ],
+    reviews: [
+      { reviewerName: 'رنا يوسف', rating: 5, comment: 'تدفئ بشكل ممتاز وملمسها ناعم جداً مثل المخمل.', createdAt: new Date() }
+    ]
   },
 ];
 
@@ -45,6 +74,9 @@ export async function seedDatabase() {
       console.log('Seeding database with default pajama products...');
       await Product.insertMany(seedProducts);
       console.log('Seeding completed successfully!');
+    } else {
+      // If products exist, let's verify if they have colorVariations and reviews. If not, we can optionally clear and reseed or update.
+      // For simplicity, during testing, we'll keep them as is, but advise clear database or reseed.
     }
     
     // Seed default coupon

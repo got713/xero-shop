@@ -4,6 +4,7 @@ export interface IOrderItem {
   productId: mongoose.Types.ObjectId;
   name: string;
   size: 'S' | 'M' | 'L' | 'XL';
+  color?: string;
   quantity: number;
   price: number;
 }
@@ -27,6 +28,7 @@ const OrderItemSchema = new Schema<IOrderItem>({
   productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
   name: { type: String, required: true },
   size: { type: String, enum: ['S', 'M', 'L', 'XL'], required: true },
+  color: { type: String },
   quantity: { type: Number, required: true, min: 1 },
   price: { type: Number, required: true }
 });

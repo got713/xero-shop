@@ -134,6 +134,7 @@ export default function CheckoutPage() {
       const mappedItems = cart.map((i) => ({
         productId: i.productId,
         size: i.size,
+        color: i.color,
         quantity: i.quantity,
       }));
 
@@ -374,7 +375,7 @@ export default function CheckoutPage() {
             {/* List of Cart Items */}
             <div className="divide-y divide-stone-200/60 max-h-60 overflow-y-auto no-scrollbar">
               {cart.map((item) => (
-                <div key={`${item.productId}-${item.size}`} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                <div key={`${item.productId}-${item.size}-${item.color || ''}`} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                   <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-stone-100 border border-stone-200/40">
                     <Image
                       src={item.image}
@@ -385,7 +386,9 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div className="flex-grow min-w-0">
-                    <h4 className="text-xs font-bold text-stone-850 truncate">{item.name}</h4>
+                    <h4 className="text-xs font-bold text-stone-850 truncate">
+                      {item.name} {item.color && <span className="text-stone-400 font-medium">({item.color})</span>}
+                    </h4>
                     <p className="text-[10px] text-stone-400 mt-0.5">
                       المقاس: <span className="font-semibold text-stone-600">{item.size}</span> | الكمية: <span className="font-semibold text-stone-600">{item.quantity}</span>
                     </p>
