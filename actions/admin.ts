@@ -13,7 +13,11 @@ export async function verifyAdminPassword(password: string): Promise<boolean> {
 }
 
 // Order Actions
-export async function updateOrderStatus(orderId: string, newStatus: string) {
+export async function updateOrderStatus(password: string, orderId: string, newStatus: string) {
+  if (!await verifyAdminPassword(password)) {
+    return { success: false, message: 'غير مصرح: رمز الدخول غير صحيح.' };
+  }
+
   try {
     await connectDB();
     const updatedOrder = await Order.findByIdAndUpdate(
@@ -35,7 +39,7 @@ export async function updateOrderStatus(orderId: string, newStatus: string) {
 }
 
 // Product Actions
-export async function createProduct(data: {
+export async function createProduct(password: string, data: {
   name: string;
   price: number;
   description: string;
@@ -43,6 +47,10 @@ export async function createProduct(data: {
   sizes: ('S' | 'M' | 'L' | 'XL')[];
   inStock: boolean;
 }) {
+  if (!await verifyAdminPassword(password)) {
+    return { success: false, message: 'غير مصرح: رمز الدخول غير صحيح.' };
+  }
+
   try {
     if (!data.name || !data.price || !data.description || data.images.length === 0) {
       return { success: false, message: 'يرجى ملء كافة البيانات المطلوبة للمنتج.' };
@@ -61,6 +69,7 @@ export async function createProduct(data: {
 }
 
 export async function updateProduct(
+  password: string,
   productId: string,
   data: {
     name?: string;
@@ -71,6 +80,10 @@ export async function updateProduct(
     inStock?: boolean;
   }
 ) {
+  if (!await verifyAdminPassword(password)) {
+    return { success: false, message: 'غير مصرح: رمز الدخول غير صحيح.' };
+  }
+
   try {
     await connectDB();
     const updated = await Product.findByIdAndUpdate(productId, data, { new: true });
@@ -89,7 +102,11 @@ export async function updateProduct(
   }
 }
 
-export async function deleteProduct(productId: string) {
+export async function deleteProduct(password: string, productId: string) {
+  if (!await verifyAdminPassword(password)) {
+    return { success: false, message: 'غير مصرح: رمز الدخول غير صحيح.' };
+  }
+
   try {
     await connectDB();
     const deleted = await Product.findByIdAndDelete(productId);
@@ -108,11 +125,15 @@ export async function deleteProduct(productId: string) {
 }
 
 // Coupon Actions
-export async function createCoupon(data: {
+export async function createCoupon(password: string, data: {
   code: string;
   discountType: 'percentage' | 'fixed';
   discountValue: number;
 }) {
+  if (!await verifyAdminPassword(password)) {
+    return { success: false, message: 'غير مصرح: رمز الدخول غير صحيح.' };
+  }
+
   try {
     if (!data.code || !data.discountValue) {
       return { success: false, message: 'يرجى ملء جميع الحقول المطلوبة للكوبون.' };
@@ -142,7 +163,11 @@ export async function createCoupon(data: {
   }
 }
 
-export async function deleteCoupon(couponId: string) {
+export async function deleteCoupon(password: string, couponId: string) {
+  if (!await verifyAdminPassword(password)) {
+    return { success: false, message: 'غير مصرح: رمز الدخول غير صحيح.' };
+  }
+
   try {
     await connectDB();
     const deleted = await Coupon.findByIdAndDelete(couponId);

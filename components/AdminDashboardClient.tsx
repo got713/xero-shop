@@ -94,10 +94,14 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
   // Check auth session
   useEffect(() => {
     const authSession = localStorage.getItem('xero_admin_auth');
-    if (authSession === 'true') {
+    if (authSession) {
       setIsAuthenticated(true);
     }
   }, []);
+
+  const getAdminPassword = () => {
+    return localStorage.getItem('xero_admin_auth') || '';
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +111,7 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
     try {
       const isValid = await verifyAdminPassword(password);
       if (isValid) {
-        localStorage.setItem('xero_admin_auth', 'true');
+        localStorage.setItem('xero_admin_auth', password);
         setIsAuthenticated(true);
         setPassword('');
       } else {
@@ -128,7 +132,8 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
   // Orders: Update status
   const handleStatusChange = (orderId: string, newStatus: string) => {
     startTransition(async () => {
-      const res = await updateOrderStatus(orderId, newStatus);
+      const pass = getAdminPassword();
+      const res = await updateOrderStatus(pass, orderId, newStatus);
       if (!res.success) alert(res.message);
     });
   };
@@ -136,7 +141,8 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
   // Products: Toggle Stock
   const handleStockToggle = (productId: string, currentStockStatus: boolean) => {
     startTransition(async () => {
-      const res = await updateProduct(productId, { inStock: !currentStockStatus });
+      const pass = getAdminPassword();
+      const res = await updateProduct(pass, productId, { inStock: !currentStockStatus });
       if (!res.success) alert(res.message);
     });
   };
@@ -185,10 +191,11 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
 
     startTransition(async () => {
       let res;
+      const pass = getAdminPassword();
       if (editingProduct) {
-        res = await updateProduct(editingProduct._id, productData);
+        res = await updateProduct(pass, editingProduct._id, productData);
       } else {
-        res = await createProduct(productData);
+        res = await createProduct(pass, productData);
       }
 
       if (res.success) {
@@ -204,7 +211,8 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
   const handleDeleteProduct = (productId: string) => {
     if (!confirm('هل أنت متأكد من رغبتك في حذف هذا المنتج نهائياً؟')) return;
     startTransition(async () => {
-      const res = await deleteProduct(productId);
+      const pass = getAdminPassword();
+      const res = await deleteProduct(pass, productId);
       alert(res.message);
     });
   };
@@ -218,7 +226,8 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
     }
 
     startTransition(async () => {
-      const res = await createCoupon({
+      const pass = getAdminPassword();
+      const res = await createCoupon(pass, {
         code: cCode,
         discountType: cType,
         discountValue: Number(cValue)
@@ -238,7 +247,8 @@ export default function AdminDashboardClient({ orders, products, coupons }: Admi
   const handleDeleteCoupon = (couponId: string) => {
     if (!confirm('هل تريد حذف كود الخصم هذا؟')) return;
     startTransition(async () => {
-      const res = await deleteCoupon(couponId);
+      const pass = getAdminPassword();
+      const res = await deleteCoupon(pass, couponId);
       alert(res.message);
     });
   };
