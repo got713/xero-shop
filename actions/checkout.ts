@@ -12,6 +12,59 @@ export type CheckoutResponse = {
   orderId?: string;
 };
 
+const BOT_TOKEN = "8970660291:AAGNehTS1MPY87uoIFomrbe0wd0siHZessY";
+const CHAT_ID = "1084674532";
+
+// دالة الأوتوميشن لإرسال التنبيه الفوري لـ تليجرام
+async function sendTelegramAlert(orderData: {
+  customerName: string;
+  phone: string;
+  address: string;
+  governorate: string;
+  items: { name: string; size: string; quantity: number }[];
+  shippingCost: number;
+  totalPrice: number;
+}) {
+  let itemsDetail = '';
+  if (orderData.items.length === 1) {
+    itemsDetail = `• المنتج: ${orderData.items[0].name}\n• المقاس: ${orderData.items[0].size}\n• الكمية: ${orderData.items[0].quantity}`;
+  } else {
+    itemsDetail = orderData.items.map(item => `• المنتج: ${item.name} | المقاس: ${item.size} | الكمية: ${item.quantity}`).join('\n');
+  }
+
+  const message = `
+🛍️ **طلب جديد في متجر Xero!**
+━━━━━━━━━━━━━━━━━━
+👤 **العميل:** ${orderData.customerName}
+📞 **الهاتف:** ${orderData.phone}
+📍 **العنوان:** ${orderData.address} (${orderData.governorate})
+
+📦 **تفاصيل الطلب:**
+${itemsDetail}
+
+💰 **الحساب:**
+• تكلفة الشحن: ${orderData.shippingCost} ج.م
+• إجمالي الفاتورة: ${orderData.totalPrice} ج.م
+━━━━━━━━━━━━━━━━━━
+⚙️ *حالة الطلب: معلق (قيد المراجعة)*
+  `.trim();
+
+  try {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: message,
+        parse_mode: "Markdown",
+      }),
+    });
+    console.log("Xero automation alert sent successfully!");
+  } catch (error) {
+    console.error("Failed to send Xero alert:", error);
+  }
+}
+
 export async function submitOrder(formData: {
   customerName: string;
   phone: string;
@@ -104,6 +157,17 @@ export async function submitOrder(formData: {
       grandTotal,
       status: 'pending',
     });
+
+    // Send Telegram Alert asynchronously (non-blocking)
+    sendTelegramAlert({
+      customerName: newOrder.customerName,
+      phone: newOrder.phone,
+      address: newOrder.address,
+      governorate: newOrder.governorate,
+      items: mappedItems,
+      shippingCost: shippingFee,
+      totalPrice: grandTotal,
+    }).catch(err => console.error("Error in background sendTelegramAlert:", err));
 
     return {
       success: true,
