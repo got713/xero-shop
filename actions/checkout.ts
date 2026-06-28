@@ -158,8 +158,8 @@ export async function submitOrder(formData: {
       status: 'pending',
     });
 
-    // Send Telegram Alert asynchronously (non-blocking)
-    sendTelegramAlert({
+    // Send Telegram Alert (awaited to ensure request completes on server actions)
+    await sendTelegramAlert({
       customerName: newOrder.customerName,
       phone: newOrder.phone,
       address: newOrder.address,
@@ -167,7 +167,7 @@ export async function submitOrder(formData: {
       items: mappedItems,
       shippingCost: shippingFee,
       totalPrice: grandTotal,
-    }).catch(err => console.error("Error in background sendTelegramAlert:", err));
+    });
 
     return {
       success: true,
