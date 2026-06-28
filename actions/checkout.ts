@@ -12,8 +12,8 @@ export type CheckoutResponse = {
   orderId?: string;
 };
 
-const BOT_TOKEN = "8970660291:AAGNehTS1MPY87uoIFomrbe0wd0siHZessY";
-const CHAT_ID = "1084674532";
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 // دالة الأوتوميشن لإرسال التنبيه الفوري لـ تليجرام
 async function sendTelegramAlert(orderData: {
